@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #299d91;
+  --color-special-red-2: #b83016;
+}
+
+:root,
+.theme-green {
+  --color-primary: #299d91;
+}
+
+.theme-blue {
+  --color-primary: #1e90ff;
+}
+
+.theme-purple {
+  --color-primary: #6a5acd;
+}
+
+.theme-pink {
+  --color-primary: #db7093;
+}
+
+.theme-brown {
+  --color-primary: #8b4513;
+}
+
+.mode-light {
+  color-scheme: light;
+}
+
+.mode-dark {
+  color-scheme: dark;
+}
+
+.mode-dark.bg-slate-50,
+.mode-dark.bg-slate-100,
+.mode-dark .bg-slate-50,
+.mode-dark .bg-slate-100 {
+  background-color: #0f172a;
+}
+
+.mode-dark .bg-white {
+  background-color: #111827;
+}
+
+.mode-dark .bg-slate-50\/80 {
+  background-color: rgb(15 23 42 / 0.8);
+}
+
+.mode-dark .text-slate-900,
+.mode-dark .text-slate-800,
+.mode-dark .text-slate-700 {
+  color: #f8fafc;
+}
+
+.mode-dark .text-slate-600,
+.mode-dark .text-slate-500 {
+  color: #cbd5e1;
+}
+
+.mode-dark .text-slate-400 {
+  color: #94a3b8;
+}
+
+.mode-dark .border-slate-400,
+.mode-dark .border-slate-300,
+.mode-dark .border-slate-200,
+.mode-dark .border-slate-100 {
+  border-color: #334155;
+}
+
+.mode-dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.35);
+}
+
+.mode-dark input {
+  background-color: #111827;
+  color: #f8fafc;
+}
+
+.mode-dark input::placeholder {
+  color: #94a3b8;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+button,
+input {
+  font: inherit;
+}

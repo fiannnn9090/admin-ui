@@ -1,0 +1,214 @@
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { SearchIcon } from "../Icons.jsx";
+import Input from "../Elements/Input.jsx";
+import Icon from "../Elements/Icon.jsx";
+import Logo from "../Elements/Logo.jsx";
+import ThemeModeToggle from "../Elements/ThemeModeToggle.jsx";
+import { useAuth } from "../../context/authContext.jsx";
+import { useColorMode } from "../../context/colorModeContext.jsx";
+import { useTheme } from "../../context/themeContext.jsx";
+import { logoutService } from "../../services/authService.jsx";
+
+const navigationItems = [
+  { id: 1, name: "Overview", icon: <Icon.Overview />, link: "/", end: true },
+  { id: 2, name: "Balances", icon: <Icon.Balance />, link: "/balance" },
+  {
+    id: 3,
+    name: "Transactions",
+    icon: <Icon.Transaction />,
+    link: "/transaction",
+  },
+  { id: 4, name: "Bills", icon: <Icon.Bill />, link: "/bill" },
+  { id: 5, name: "Expenses", icon: <Icon.Expense />, link: "/expense" },
+  { id: 6, name: "Goals", icon: <Icon.Goal />, link: "/goal" },
+  { id: 7, name: "Settings", icon: <Icon.Setting />, link: "/setting" },
+];
+
+function getFirstName(name) {
+  return name?.split(" ")[0] || "Tanzir";
+}
+
+function getInitial(name) {
+  return name?.trim().charAt(0).toUpperCase() || "T";
+}
+
+function MainLayout({ children, onLogout, user }) {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const { modeClassName } = useColorMode();
+  const { setTheme, theme, themes } = useTheme();
+  const currentUser = user ?? auth.user;
+  const profileName =
+    currentUser?.name ?? currentUser?.email ?? "Finebank User";
+  const profileEmail = currentUser?.email ?? "View Profile";
+  const currentDate = new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    try {
+      if (currentUser?.source === "local") {
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, 300);
+        });
+      } else {
+        await logoutService();
+      }
+    } catch (error) {
+      if (error?.status !== 401) {
+        // Local logout still keeps the UI consistent when the API is unreachable.
+      }
+    } finally {
+      auth.logout();
+      onLogout?.();
+      navigate("/login", { replace: true });
+    }
+  }
+
+  return (
+    <div className={`${theme.name} ${modeClassName} flex min-h-screen bg-slate-100 text-slate-900`}>
+      <aside className="flex w-28 shrink-0 flex-col justify-between bg-neutral-950 px-4 py-7 text-slate-400 sm:w-64 sm:px-5">
+        <div>
+          <Logo variant="secondary" className="mb-10" />
+
+          <nav className="space-y-2" aria-label="Main navigation">
+            {navigationItems.map((item) => (
+              <NavLink
+                key={item.id}
+                end={item.end}
+                to={item.link}
+                className={({ isActive }) =>
+                  `flex rounded px-4 py-3 transition hover:scale-105 hover:text-white hover:font-bold ${
+                    isActive
+                      ? "bg-primary text-white font-bold"
+                      : "hover:bg-neutral-800"
+                  }`
+                }
+              >
+                <span className="mx-auto sm:mx-0">{item.icon}</span>
+                <span className="ms-3 hidden text-sm font-medium sm:block">
+                  {item.name}
+                </span>
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="mt-8 hidden sm:block">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-normal text-slate-500">
+              Accent
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {themes.map((item) => (
+                <button
+                  aria-label={`Use ${item.label} theme`}
+                  className={`h-6 w-6 cursor-pointer rounded-full border-2 transition hover:scale-110 ${
+                    theme.name === item.name
+                      ? "border-white"
+                      : "border-transparent"
+                  }`}
+                  key={item.name}
+                  onClick={() => setTheme(item)}
+                  style={{ backgroundColor: item.color }}
+                  type="button"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            className="flex w-full cursor-pointer rounded bg-neutral-800 px-4 py-3 text-slate-200 transition hover:scale-105 hover:text-white"
+            onClick={handleLogout}
+          >
+            <span className="mx-auto sm:mx-0">
+              <Icon.Logout />
+            </span>
+            <span className="ms-3 hidden text-sm font-medium sm:block">
+              Logout
+            </span>
+          </button>
+
+          <div className="my-10 border-b border-neutral-800" />
+
+          <div className="flex items-center justify-between gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-bold text-white">
+              {getInitial(profileName)}
+            </div>
+            <div className="hidden min-w-0 flex-1 sm:block">
+              <p className="truncate text-sm font-semibold text-white">
+                {profileName}
+              </p>
+              <p className="mt-1 truncate text-xs text-slate-500">
+                {profileEmail}
+              </p>
+            </div>
+            <Icon.Detail
+              className="hidden text-slate-500 sm:block"
+              size={20}
+            />
+          </div>
+        </div>
+      </aside>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex flex-col gap-4 border-b border-slate-200 bg-white px-4 py-5 sm:px-7 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-lg font-bold text-slate-900 sm:text-xl">
+              Hello {getFirstName(profileName)}
+            </h1>
+            <span className="text-slate-300">|</span>
+            <p className="text-sm text-slate-500">{currentDate}</p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <ThemeModeToggle className="hidden sm:inline-flex" />
+            <button
+              type="button"
+              aria-label="Notifications"
+              className="grid h-10 w-10 place-items-center rounded-full bg-white text-slate-500 shadow-sm"
+            >
+              <NotificationsNoneOutlinedIcon fontSize="small" />
+            </button>
+            <div className="hidden w-64 sm:block">
+              <Input
+                id="dashboard-search"
+                type="search"
+                placeholder="Search here"
+                border="border-white"
+                backgroundColor="bg-white"
+                icon={<SearchIcon className="h-4 w-4" />}
+                className="shadow-sm"
+              />
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-auto px-4 py-6 sm:px-7">
+          {children}
+        </main>
+      </div>
+
+      <Backdrop
+        open={isLoggingOut}
+        sx={{ color: "#fff", zIndex: (muiTheme) => muiTheme.zIndex.drawer + 1 }}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <CircularProgress color="inherit" />
+          <p className="text-sm font-semibold">Logging Out</p>
+        </div>
+      </Backdrop>
+    </div>
+  );
+}
+
+export default MainLayout;
