@@ -30,6 +30,15 @@ function CardGoal({ data = {}, isLoading = false }) {
   const chartValue = targetAmount
     ? Math.min((presentAmount / targetAmount) * 100, 100)
     : 0;
+  const angle = (chartValue / 100) * Math.PI;
+  const radius = 50;
+  const centerX = 60;
+  const centerY = 60;
+  const needleX = centerX + radius * Math.cos(angle - Math.PI);
+  const needleY = centerY + radius * Math.sin(angle - Math.PI);
+  const largeArcFlag = chartValue > 50 ? 1 : 0;
+  const targetLabel = currencyFormatter.format(targetAmount);
+  const midLabel = currencyFormatter.format(targetAmount / 2);
 
   return (
     <Card title="Goals">
@@ -62,19 +71,45 @@ function CardGoal({ data = {}, isLoading = false }) {
           </div>
         </div>
 
-        <div className="relative grid h-28 w-28 place-items-center">
-          <CircularProgress
-            size={112}
-            sx={{ color: theme.color, position: "absolute" }}
-            thickness={5}
-            value={chartValue}
-            variant="determinate"
-          />
-          <div className="text-center">
-            <p className="text-lg font-bold text-slate-900">
-              {Math.round(chartValue)}%
-            </p>
-            <p className="text-[10px] text-slate-500">Target</p>
+        <div className="flex flex-col items-center gap-3">
+          <svg
+            viewBox="0 0 120 70"
+            className="h-28 w-36"
+            aria-hidden="true"
+          >
+            <path
+              d="M10 60 A50 50 0 0 1 110 60"
+              fill="none"
+              stroke="#E2E8F0"
+              strokeWidth="10"
+              strokeLinecap="round"
+            />
+            <path
+              d={`M10 60 A50 50 0 ${largeArcFlag} 1 ${
+                60 + radius * Math.cos(angle - Math.PI)
+              } ${
+                60 + radius * Math.sin(angle - Math.PI)
+              }`}
+              fill="none"
+              stroke={theme.color}
+              strokeWidth="10"
+              strokeLinecap="round"
+            />
+            <line
+              x1={centerX}
+              y1={centerY}
+              x2={needleX}
+              y2={needleY}
+              stroke={theme.color}
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <circle cx={centerX} cy={centerY} r="4" fill={theme.color} />
+          </svg>
+          <div className="flex w-full items-center justify-between text-[10px] font-semibold text-slate-500">
+            <span>0</span>
+            <span>{midLabel}</span>
+            <span>{targetLabel}</span>
           </div>
         </div>
       </div>
